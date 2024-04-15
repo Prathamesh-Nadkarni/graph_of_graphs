@@ -41,7 +41,7 @@ for category, category_df in category_dfs.items():
         if x != category:
             average = category_df[x].astype(float).sum() / len(category_df[x])
             print(x," Edge Percentage", average/sum)
-            EdgePercentage[x] = format(average/sum, ".4f")
+            EdgePercentage[x] = float(format(average/sum, ".4f"))
     
     EdgeDict[category] = EdgePercentage
 

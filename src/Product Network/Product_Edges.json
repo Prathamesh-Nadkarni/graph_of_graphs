@@ -1,32 +1,32 @@
 {
     "Health & Beauty": {
-        "Electronics": "0.2877",
-        "Books": "0.1831",
-        "Groceries": "0.2070",
-        "Home & Kitchen": "0.3222"
+        "Electronics": 0.2877,
+        "Books": 0.1831,
+        "Groceries": 0.207,
+        "Home & Kitchen": 0.3222
     },
     "Electronics": {
-        "Health & Beauty": "0.2294",
-        "Books": "0.1854",
-        "Groceries": "0.1953",
-        "Home & Kitchen": "0.3898"
+        "Health & Beauty": 0.2294,
+        "Books": 0.1854,
+        "Groceries": 0.1953,
+        "Home & Kitchen": 0.3898
     },
     "Books": {
-        "Health & Beauty": "0.2108",
-        "Electronics": "0.2246",
-        "Groceries": "0.2210",
-        "Home & Kitchen": "0.3436"
+        "Health & Beauty": 0.2108,
+        "Electronics": 0.2246,
+        "Groceries": 0.221,
+        "Home & Kitchen": 0.3436
     },
     "Groceries": {
-        "Health & Beauty": "0.2498",
-        "Electronics": "0.2769",
-        "Books": "0.1838",
-        "Home & Kitchen": "0.2895"
+        "Health & Beauty": 0.2498,
+        "Electronics": 0.2769,
+        "Books": 0.1838,
+        "Home & Kitchen": 0.2895
     },
     "Home & Kitchen": {
-        "Health & Beauty": "0.2897",
-        "Electronics": "0.2894",
-        "Books": "0.1698",
-        "Groceries": "0.2510"
+        "Health & Beauty": 0.2897,
+        "Electronics": 0.2894,
+        "Books": 0.1698,
+        "Groceries": 0.251
     }
 }
