@@ -1,4 +1,4 @@
-import numpy as np
+import json
 
 def parse(filename):
     return {}
@@ -6,7 +6,7 @@ def parse(filename):
 def synth_age_demographics(low, high, step):
     n = (high-low)//step
     ranges = list(f'{low + i*step}-{low + (i+1)*step}' for i in range(n))
-    
+
     NUM_FRIENDS = 30
     age_data = {}
     for sample in range(3):
@@ -17,8 +17,7 @@ def synth_age_demographics(low, high, step):
         age_data[sample] = (ranges[range_idx], friends)
     return age_data
 
-
-
-    
-
-
+def parse_json(filename):
+    with open(filename, 'r') as file:
+        parsed_dict = json.load(file)
+    return parsed_dict
