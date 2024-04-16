@@ -17,7 +17,9 @@ class Model:
         self.P.add_nodes_from(product_data.keys())
 
     def create_demographic(self, demographic_data):
-        self.D.add_nodes_from(demographic_data.keys())
+        # id:(age_range, [friend_1_range, ...])
+        age_ranges = set(value[0] for value in demographic_data.values())
+        self.D.add_nodes_from(age_ranges)
 
     def create_social(self, social_data):
         self.S.add_nodes_from(social_data.keys())
