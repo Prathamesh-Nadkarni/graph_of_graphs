@@ -6,8 +6,8 @@ import numpy as np
 class Model:
     def __init__(self, product_data: Dict, demographic_data: Dict, social_data: Dict):
         self.P = nx.DiGraph()
-        self.D = nx.Graph()
-        self.S = nx.Graph()
+        self.D = nx.DiGraph()
+        self.S = nx.DiGraph()
         self.create_product(product_data)
         self.create_demographic(demographic_data)
         self.create_social(social_data)
@@ -25,8 +25,22 @@ class Model:
 
     def create_demographic(self, demographic_data):
         # id:(age_range, [friend_1_range, ...])
-        age_ranges = set(value[0] for value in demographic_data.values())
-        self.D.add_nodes_from(age_ranges)
+        ages = set(value[0] for value in demographic_data.values())
+        self.D.add_nodes_from(ages)
+        for _, (age, friends) in demographic_data.items():
+            for friend in friends:
+                if not self.D.has_edge(age, friend):
+                    self.D.add_edge(age, friend, weight=0)
+                self.D[age][friend]['weight'] += 1
+        for age in self.D.nodes():
+            total_weight = sum(self.D[age][neighbor]['weight'] for neighbor in self.D.neighbors(age))
+            for friend in self.D.neighbors(age):
+                self.D[age][friend]['weight'] /= total_weight
+
+        test_age = '30-35'
+        print(test_age, [(neighbor, self.D[test_age][neighbor]['weight']) for neighbor in self.D.neighbors(test_age)])
+
+
 
     def create_social(self, social_data):
         self.S.add_nodes_from(social_data.keys())
