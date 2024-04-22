@@ -1,5 +1,6 @@
 from typing import Dict
 import networkx as nx
+import py4cytoscape as p4c
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -37,9 +38,6 @@ class Model:
             for friend in self.D.neighbors(age):
                 self.D[age][friend]['weight'] /= total_weight
 
-        test_age = '30-35'
-        print(test_age, [(neighbor, self.D[test_age][neighbor]['weight']) for neighbor in self.D.neighbors(test_age)])
-
 
 
     def create_social(self, social_data):
@@ -58,6 +56,23 @@ class Model:
         
         label_pos = midpoint + normalized_perpendicular * rad
         return label_pos
+    
+    def visualize_cytoscape(self, network, add_weights=True):
+        suid = p4c.networks.create_network_from_networkx(network)
+        style_name = f'{suid} style'
+        # default style mapping
+        defaults = {'NODE_SHAPE': 'rectangle', 'NODE_FILL_COLOR': '#FF9900', 'EDGE_TARGET_ARROW_SHAPE': 'arrow'}
+
+        # create mappings
+        mappings = []
+        mappings.append(p4c.map_visual_property('NODE_LABEL', 'name', 'p'))
+        if add_weights:
+            mappings.append(p4c.map_visual_property('EDGE_LABEL', 'weight', 'p'))
+        mappings.append(p4c.map_visual_property('EDGE_STROKE_UNSELECTED_PAINT', 'weight', 'c', [0.0, 1.0], ['blue','red']))
+        mappings.append(p4c.map_visual_property('EDGE_TRANSPARENCY', 'weight', 'c', [0.0, 1.0], [10, 255]))
+        
+        p4c.styles.create_visual_style(style_name, defaults=defaults, mappings=mappings)
+        p4c.styles.set_visual_style(style_name, suid)
 
     def visualize(self, network):
         left_curved_edges = [('Health & Beauty', 'Electronics'),('Electronics', 'Books'),('Books', 'Groceries'),('Groceries', 'Home & Kitchen'),('Home & Kitchen', 'Health & Beauty'), ('Electronics', 'Groceries'), ('Electronics', 'Home & Kitchen'),('Books', 'Health & Beauty'),('Books', 'Home & Kitchen'),('Health & Beauty', 'Groceries')]
