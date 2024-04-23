@@ -3,6 +3,7 @@ import networkx as nx
 import py4cytoscape as p4c
 import matplotlib.pyplot as plt
 import numpy as np
+import utils
 
 class Model:
     def __init__(self, product_data, demographic_data, social_data, p_to_d_data, d_to_s_data):
@@ -16,8 +17,8 @@ class Model:
         self.create_demographic(demographic_data)
         self.create_social(social_data)
         
-        self.create_product_to_demographic(p_to_d_data)
-        self.create_demographic_to_social(d_to_s_data)
+        #self.create_product_to_demographic(p_to_d_data)
+        #self.create_demographic_to_social(d_to_s_data)
 
     def query(self, product):
         return []
@@ -61,10 +62,8 @@ class Model:
         age_ranges = self.D.nodes()
         socials = self.S.nodes()
         def age_to_range(age):
-            for age_range in age_ranges:
-                min_age, max_age = map(int, age_range.split('-'))
-                if min_age <= age and age <= max_age:
-                    return age_range
+            index = (age - utils.MIN_AGE) // utils.AGE_STEP
+            return f"{utils.MIN_AGE + index * utils.AGE_STEP}-{utils.MIN_AGE + (index + 1) * utils.AGE_STEP - 1}"
 
         for _, (age, socials) in ds_data.items():
             age_range = age_to_range(age)
