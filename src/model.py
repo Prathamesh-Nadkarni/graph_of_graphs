@@ -5,13 +5,19 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class Model:
-    def __init__(self, product_data: Dict, demographic_data: Dict, social_data: Dict):
+    def __init__(self, product_data, demographic_data, social_data, p_to_d_data, d_to_s_data):
         self.P = nx.DiGraph()
+        self.P_to_D = nx.DiGraph()
         self.D = nx.DiGraph()
+        self.D_to_S = nx.DiGraph()
         self.S = nx.DiGraph()
+        
         self.create_product(product_data)
         self.create_demographic(demographic_data)
         self.create_social(social_data)
+        
+        self.create_product_to_demographic(p_to_d_data)
+        self.create_demographic_to_social(d_to_s_data)
 
     def query(self, product):
         return []
@@ -39,10 +45,43 @@ class Model:
                 self.D[age][friend]['weight'] /= total_weight
 
 
-
     def create_social(self, social_data):
-        self.S.add_nodes_from(social_data.keys())
+        pass
 
+    def create_product_to_demographic(self, pd_data):
+        pass
+
+    def create_demographic_to_social(self, ds_data):
+        # ds_data = age -> social media ranked (list)
+        self.D_to_S.add_nodes_from(self.D)
+        self.D_to_S.add_nodes_from(self.S)
+        
+
+
+    
+    
+    def visualize_cytoscape(self, network, add_weights=True):
+        try:
+            suid = p4c.networks.create_network_from_networkx(network)
+        except:
+            print('Visualization requires Cytoscape to be running https://cytoscape.org/')
+            return
+        style_name = f'{suid} style'
+        # default style mapping
+        defaults = {'NODE_SHAPE': 'rectangle', 'NODE_FILL_COLOR': 'orange', 'EDGE_TARGET_ARROW_SHAPE': 'arrow'}
+
+        # create mappings
+        mappings = []
+        mappings.append(p4c.map_visual_property('NODE_LABEL', 'name', 'p'))
+        if add_weights:
+            mappings.append(p4c.map_visual_property('EDGE_LABEL', 'weight', 'p'))
+        mappings.append(p4c.map_visual_property('EDGE_STROKE_UNSELECTED_PAINT', 'weight', 'c', [0.0, 1.0], ['blue','red']))
+        mappings.append(p4c.map_visual_property('EDGE_TRANSPARENCY', 'weight', 'c', [0.0, 0.5, 1.0], [0, 200, 255]))
+        
+        p4c.styles.create_visual_style(style_name, defaults=defaults, mappings=mappings)
+        p4c.styles.set_visual_style(style_name, suid)
+
+    '''
     def adjust_label_pos(self, pos, edge, rad):
         """ Adjust the position of edge labels for curved edges. """
         src, tgt = edge
@@ -56,23 +95,6 @@ class Model:
         
         label_pos = midpoint + normalized_perpendicular * rad
         return label_pos
-    
-    def visualize_cytoscape(self, network, add_weights=True):
-        suid = p4c.networks.create_network_from_networkx(network)
-        style_name = f'{suid} style'
-        # default style mapping
-        defaults = {'NODE_SHAPE': 'rectangle', 'NODE_FILL_COLOR': '#FF9900', 'EDGE_TARGET_ARROW_SHAPE': 'arrow'}
-
-        # create mappings
-        mappings = []
-        mappings.append(p4c.map_visual_property('NODE_LABEL', 'name', 'p'))
-        if add_weights:
-            mappings.append(p4c.map_visual_property('EDGE_LABEL', 'weight', 'p'))
-        mappings.append(p4c.map_visual_property('EDGE_STROKE_UNSELECTED_PAINT', 'weight', 'c', [0.0, 1.0], ['blue','red']))
-        mappings.append(p4c.map_visual_property('EDGE_TRANSPARENCY', 'weight', 'c', [0.0, 1.0], [10, 255]))
-        
-        p4c.styles.create_visual_style(style_name, defaults=defaults, mappings=mappings)
-        p4c.styles.set_visual_style(style_name, suid)
 
     def visualize(self, network):
         left_curved_edges = [('Health & Beauty', 'Electronics'),('Electronics', 'Books'),('Books', 'Groceries'),('Groceries', 'Home & Kitchen'),('Home & Kitchen', 'Health & Beauty'), ('Electronics', 'Groceries'), ('Electronics', 'Home & Kitchen'),('Books', 'Health & Beauty'),('Books', 'Home & Kitchen'),('Health & Beauty', 'Groceries')]
@@ -112,3 +134,4 @@ class Model:
         plt.title("Network Visualization with Curved Edges and Weights")
         plt.axis('off')
         plt.show()
+    '''
