@@ -40,7 +40,7 @@ class Model:
                     self.D.add_edge(age, friend, weight=0)
                 self.D[age][friend]['weight'] += 1
         for age in self.D.nodes():
-            total_weight = sum(self.D[age][neighbor]['weight'] for neighbor in self.D.neighbors(age))
+            total_weight = sum(self.D[age][friend]['weight'] for friend in self.D.neighbors(age))
             for friend in self.D.neighbors(age):
                 self.D[age][friend]['weight'] /= total_weight
 
@@ -52,14 +52,31 @@ class Model:
         pass
 
     def create_demographic_to_social(self, ds_data):
-        # ds_data = age -> social media ranked (list)
+        # this isn't tested at all!!! remove comment once we know it actually runs
+
+        # ds_data = id: (age, [sm1, sm2, ...])
         self.D_to_S.add_nodes_from(self.D)
         self.D_to_S.add_nodes_from(self.S)
-        
 
+        age_ranges = self.D.nodes()
+        socials = self.S.nodes()
+        def age_to_range(age):
+            for age_range in age_ranges:
+                min_age, max_age = map(int, age_range.split('-'))
+                if min_age <= age and age <= max_age:
+                    return age_range
 
-    
-    
+        for _, (age, socials) in ds_data.items():
+            age_range = age_to_range(age)
+            for social in socials:
+                if not self.D_to_S.has_edge(age_range, social):
+                    self.D.add_edge(age_range, social, weight=0)
+                self.D[age_range][social]['weight'] += 1
+        for age_range in age_ranges:
+            total_weight = sum(self.D[age_range][social]['weight'] for social in self.D.neighbors(age))
+            for social in self.D.neighbors(age_range):
+                self.D[age_range][social]['weight'] /= total_weight
+
     def visualize_cytoscape(self, network, add_weights=True):
         try:
             suid = p4c.networks.create_network_from_networkx(network)
