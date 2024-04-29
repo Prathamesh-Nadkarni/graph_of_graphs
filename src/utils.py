@@ -11,8 +11,8 @@ def parse(filename):
 
 def synth_age_demographics(low, high, step, n_samples):
     n_ranges = (high-low)//step
-    ranges = list(f'{low + i*step}-{low + (i+1)*step}' for i in range(n_ranges))
-
+    ranges = list(f'{low + i*step}-{low + (i+1)*step - 1}' for i in range(n_ranges))
+    print(ranges)
     NUM_FRIENDS = 30
     VARIANCE = 1
     age_data = {}

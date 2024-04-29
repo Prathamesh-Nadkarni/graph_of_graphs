@@ -3,6 +3,7 @@ import networkx as nx
 import py4cytoscape as p4c
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import utils
 
 class Model:
@@ -50,7 +51,24 @@ class Model:
         pass
 
     def create_product_to_demographic(self, pd_data):
-        pass
+        # needs to be tested! adapted from Extracing_Values.py
+        Product_dataset = pd.read_csv(pd_data)
+        Product_Demographic = Product_dataset[['Age','ProductCategory']]
+        Product_Demographic = Product_Demographic.dropna()
+        self.P_to_D.add_nodes_from(self.P)
+        self.P_to_D.add_nodes_from(self.D)
+        Ages = [age for age in range(utils.MIN_AGE+utils.age_interval, utils.MAX_AGE+1, utils.AGE_STEP)]
+        Product_Nodes = self.P.nodes
+        for x in Product_Nodes:
+            Node_Dataframe = Product_Demographic[Product_Demographic['ProductCategory'] == x]
+            Total = Node_Dataframe.shape[0]
+            for y in range(0, len(Ages)):
+                if y == 0:
+                    self.P_to_D.add_edge(x, str(utils.MIN_AGE) + "-" + str(Ages[y]),
+                                         weight=Node_Dataframe[(Node_Dataframe['Age'] >= utils.MIN_AGE) & (Node_Dataframe['Age'] <= Ages[y])].shape[0]/Total)
+                else:
+                    self.P_to_D.add_edge(x, str(Ages[y-1] + 1) + "-" + str(Ages[y]),
+                                         weight=Node_Dataframe[(Node_Dataframe['Age'] > Ages[y-1]) & (Node_Dataframe['Age'] <= Ages[y])].shape[0]/Total)
 
     def create_demographic_to_social(self, ds_data):
         # this isn't tested at all!!! remove comment once we know it actually runs
@@ -69,12 +87,12 @@ class Model:
             age_range = age_to_range(age)
             for social in socials:
                 if not self.D_to_S.has_edge(age_range, social):
-                    self.D.add_edge(age_range, social, weight=0)
-                self.D[age_range][social]['weight'] += 1
+                    self.D_to_S.add_edge(age_range, social, weight=0)
+                self.D_to_S[age_range][social]['weight'] += 1
         for age_range in age_ranges:
-            total_weight = sum(self.D[age_range][social]['weight'] for social in self.D.neighbors(age))
-            for social in self.D.neighbors(age_range):
-                self.D[age_range][social]['weight'] /= total_weight
+            total_weight = sum(self.D_to_S[age_range][social]['weight'] for social in self.D_to_S.neighbors(age_range))
+            for social in self.D_to_S.neighbors(age_range):
+                self.D_to_S[age_range][social]['weight'] /= total_weight
 
     def visualize_cytoscape(self, network, add_weights=True):
         try:
