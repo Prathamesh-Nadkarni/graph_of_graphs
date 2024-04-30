@@ -60,7 +60,6 @@ class Model:
         self.P_to_D.add_nodes_from(self.P)
         self.P_to_D.add_nodes_from(self.D)
         Ages = [age for age in range(utils.MIN_AGE+utils.AGE_STEP, utils.MAX_AGE+1, utils.AGE_STEP)]
-        print(Ages)
         Product_Nodes = self.P.nodes
         for x in Product_Nodes:
             Node_Dataframe = Product_Demographic[Product_Demographic['ProductCategory'] == x]
