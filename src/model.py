@@ -59,18 +59,16 @@ class Model:
         Product_Demographic = Product_Demographic.dropna()
         self.P_to_D.add_nodes_from(self.P)
         self.P_to_D.add_nodes_from(self.D)
-        Ages = [age for age in range(utils.MIN_AGE+utils.AGE_STEP-1, utils.MAX_AGE+1, utils.AGE_STEP-1)]
+        Ages = [age for age in range(utils.MIN_AGE+utils.AGE_STEP, utils.MAX_AGE+1, utils.AGE_STEP)]
+        print(Ages)
         Product_Nodes = self.P.nodes
         for x in Product_Nodes:
             Node_Dataframe = Product_Demographic[Product_Demographic['ProductCategory'] == x]
             Total = Node_Dataframe.shape[0]
-            for y in range(0, len(Ages)):
-                if y == 0:
-                    self.P_to_D.add_edge(x, str(utils.MIN_AGE) + "-" + str(Ages[y]),
-                                         weight=Node_Dataframe[(Node_Dataframe['Age'] >= utils.MIN_AGE) & (Node_Dataframe['Age'] <= Ages[y])].shape[0]/Total)
-                else:
-                    self.P_to_D.add_edge(x, str(Ages[y-1] + 1) + "-" + str(Ages[y]),
-                                         weight=Node_Dataframe[(Node_Dataframe['Age'] > Ages[y-1]) & (Node_Dataframe['Age'] <= Ages[y])].shape[0]/Total)
+            for y in range(len(Ages)):
+                low, high = utils.MIN_AGE if y == 0 else Ages[y-1], Ages[y]-1
+                self.P_to_D.add_edge(x, str(low) + "-" + str(high),
+                                        weight=Node_Dataframe[(Node_Dataframe['Age'] >= low) & (Node_Dataframe['Age'] <= high)].shape[0]/Total)
 
     def create_demographic_to_social(self, ds_data):
         # needs to be tested!!!
