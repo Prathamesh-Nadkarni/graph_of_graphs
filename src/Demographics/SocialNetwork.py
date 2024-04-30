@@ -6,12 +6,8 @@ from sklearn.preprocessing import LabelEncoder
 # Load dataset
 data = pd.read_csv("DemographicsSM.csv")
 
-# Convert gender to numeric
-gender_encoder = LabelEncoder()
-data['gender'] = gender_encoder.fit_transform(data['gender'])
-
 # Separate features and target
-X = data[['age', 'gender']].values
+X = data[['age']].values
 y = data['platform'].values
 
 # Train the classifier
@@ -23,11 +19,10 @@ probabilities = classifier.predict_proba(X)
 
 # Sort the probabilities and store in a DataFrame
 sorted_probabilities = np.hstack((X, probabilities))
-sorted_columns = ['age', 'gender', 'Facebook', 'Instagram', 'TikTok', 'Twitter', 'YouTube']
+sorted_columns = ['age', 'Facebook', 'Instagram', 'TikTok', 'Twitter', 'YouTube']
 result_df = pd.DataFrame(sorted_probabilities, columns=sorted_columns)
 
 # Convert gender back to categorical
-result_df['gender'] = gender_encoder.inverse_transform(result_df['gender'].astype(int))
 
 # Convert age to integer
 result_df['age'] = result_df['age'].astype(int)
