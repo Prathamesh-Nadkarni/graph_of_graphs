@@ -20,6 +20,7 @@ class Model:
         
         #self.create_product_to_demographic(p_to_d_data)
         self.create_demographic_to_social(d_to_s_data)
+        self.create_product_to_demographic(p_to_d_data)
 
     def query(self, product):
         return []
@@ -58,7 +59,7 @@ class Model:
         Product_Demographic = Product_Demographic.dropna()
         self.P_to_D.add_nodes_from(self.P)
         self.P_to_D.add_nodes_from(self.D)
-        Ages = [age for age in range(utils.MIN_AGE+utils.age_interval, utils.MAX_AGE+1, utils.AGE_STEP)]
+        Ages = [age for age in range(utils.MIN_AGE+utils.AGE_STEP-1, utils.MAX_AGE+1, utils.AGE_STEP-1)]
         Product_Nodes = self.P.nodes
         for x in Product_Nodes:
             Node_Dataframe = Product_Demographic[Product_Demographic['ProductCategory'] == x]
