@@ -2,7 +2,7 @@ import pandas as pd
 import json
 
 Probability_csv = 'probabilities.csv'
-df = pd.read_csv(Probability_csv, index_col='Age')  # Assuming 'Age' is the column to use as an index
+df = pd.read_csv(Probability_csv, index_col='age')  # Assuming 'Age' is the column to use as an index
 
 def clean_numeric(value):
     if isinstance(value, str):  # Check if the value is a string

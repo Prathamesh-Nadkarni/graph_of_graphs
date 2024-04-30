@@ -1,32 +1,32 @@
 {
     "TikTok": {
-        "Twitter": 0.2172,
-        "Instagram": 0.265,
-        "Facebook": 0.2744,
-        "YouTube": 0.2434
+        "Twitter": 0.2553,
+        "Instagram": 0.2747,
+        "Facebook": 0.252,
+        "YouTube": 0.218
     },
     "Twitter": {
-        "TikTok": 0.2012,
-        "Instagram": 0.2896,
-        "Facebook": 0.2766,
-        "YouTube": 0.2325
+        "TikTok": 0.2062,
+        "Instagram": 0.2905,
+        "Facebook": 0.2715,
+        "YouTube": 0.2319
     },
     "Instagram": {
-        "TikTok": 0.2162,
-        "Twitter": 0.2285,
-        "Facebook": 0.2929,
-        "YouTube": 0.2624
+        "TikTok": 0.2153,
+        "Twitter": 0.2296,
+        "Facebook": 0.2905,
+        "YouTube": 0.2646
     },
     "Facebook": {
-        "TikTok": 0.2,
-        "Twitter": 0.2363,
-        "Instagram": 0.3056,
-        "YouTube": 0.258
+        "TikTok": 0.2017,
+        "Twitter": 0.2395,
+        "Instagram": 0.304,
+        "YouTube": 0.2548
     },
     "YouTube": {
-        "TikTok": 0.2181,
-        "Twitter": 0.2417,
-        "Instagram": 0.2795,
-        "Facebook": 0.2607
+        "TikTok": 0.2249,
+        "Twitter": 0.2393,
+        "Instagram": 0.279,
+        "Facebook": 0.2568
     }
 }

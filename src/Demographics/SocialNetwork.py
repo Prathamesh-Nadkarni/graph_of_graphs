@@ -1,36 +1,39 @@
-import csv
-from collections import defaultdict
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import LabelEncoder
 
-# Initialize dictionaries to store counts and probabilities
-counts = defaultdict(int)
-probabilities = defaultdict(dict)
+# Load dataset
+data = pd.read_csv("DemographicsSM.csv")
 
-# Read data from the CSV file
-with open('demographicsSM.csv', mode='r') as file:
-    reader = csv.reader(file)
-    next(reader)  # Skip header row
-    for row in reader:
-        age, gender, platform = row
-        counts[(age, gender, platform)] += 1
+# Convert gender to numeric
+gender_encoder = LabelEncoder()
+data['gender'] = gender_encoder.fit_transform(data['gender'])
 
-# Calculate total number of individuals for each age and gender
-totals = defaultdict(int)
-for (age, gender, _), count in counts.items():
-    totals[(age, gender)] += count
+# Separate features and target
+X = data[['age', 'gender']].values
+y = data['platform'].values
 
-# Calculate probabilities
-for (age, gender, platform), count in counts.items():
-    probability = count / totals[(age, gender)]
-    probabilities[(age, gender)][platform] = probability
+# Train the classifier
+classifier = RandomForestClassifier(n_estimators=100, random_state=42)
+classifier.fit(X, y)
 
-# Sort the probabilities by age and gender
-sorted_probabilities = sorted(probabilities.items())
+# Predict probabilities for the whole dataset
+probabilities = classifier.predict_proba(X)
 
-# Write sorted probabilities to a CSV file
-with open('probabilities2.csv', mode='w', newline='') as file:
-    writer = csv.writer(file)
-    writer.writerow(['Age', 'Gender', 'TikTok', 'Facebook', 'Twitter', 'Instagram', 'YouTube'])
-    for (age, gender), platform_probs in sorted_probabilities:
-        row = [age, gender]
-        row.extend([platform_probs.get(platform, 0) for platform in ['TikTok', 'Facebook', 'Twitter', 'Instagram', 'YouTube']])
-        writer.writerow(row)
+# Sort the probabilities and store in a DataFrame
+sorted_probabilities = np.hstack((X, probabilities))
+sorted_columns = ['age', 'gender', 'Facebook', 'Instagram', 'TikTok', 'Twitter', 'YouTube']
+result_df = pd.DataFrame(sorted_probabilities, columns=sorted_columns)
+
+# Convert gender back to categorical
+result_df['gender'] = gender_encoder.inverse_transform(result_df['gender'].astype(int))
+
+# Convert age to integer
+result_df['age'] = result_df['age'].astype(int)
+
+# Round probabilities to 3 decimal points
+result_df[['Facebook', 'Instagram', 'TikTok', 'Twitter', 'YouTube']] = result_df[['Facebook', 'Instagram', 'TikTok', 'Twitter', 'YouTube']].round(3)
+
+# Save probabilities to a CSV file
+result_df.to_csv("probabilities.csv", index=False)
