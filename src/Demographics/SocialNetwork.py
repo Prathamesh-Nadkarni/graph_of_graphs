@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import LabelEncoder
 
 # Load dataset
 data = pd.read_csv("DemographicsSM.csv")
@@ -17,12 +16,18 @@ classifier.fit(X, y)
 # Predict probabilities for the whole dataset
 probabilities = classifier.predict_proba(X)
 
-# Sort the probabilities and store in a DataFrame
-sorted_probabilities = np.hstack((X, probabilities))
-sorted_columns = ['age', 'Facebook', 'Instagram', 'TikTok', 'Twitter', 'YouTube']
-result_df = pd.DataFrame(sorted_probabilities, columns=sorted_columns)
+# Aggregate probabilities by age
+unique_ages = np.unique(X)
+average_probabilities = []
 
-# Convert gender back to categorical
+for age in unique_ages:
+    age_indices = np.where(X == age)[0]
+    age_probabilities = probabilities[age_indices].mean(axis=0)
+    average_probabilities.append(np.hstack((age, age_probabilities)))
+
+# Store aggregated probabilities in a DataFrame
+columns = ['age', 'Facebook', 'Instagram', 'TikTok', 'Twitter', 'YouTube']
+result_df = pd.DataFrame(average_probabilities, columns=columns)
 
 # Convert age to integer
 result_df['age'] = result_df['age'].astype(int)

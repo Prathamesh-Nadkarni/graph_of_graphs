@@ -50,7 +50,11 @@ class Model:
 
     def create_social(self, social_data):
         self.S.add_nodes_from(['TikTok', 'Twitter', 'Instagram', 'Facebook', 'YouTube'])
-        pass
+        for x in social_data.keys():
+            EdgeDict = social_data[x]
+            edge_names = EdgeDict.keys()
+            for y in edge_names:
+                self.P.add_edge(x,y,weight = EdgeDict[y])
 
     def create_product_to_demographic(self, pd_data):
         Product_dataset = pd.read_csv(pd_data)
