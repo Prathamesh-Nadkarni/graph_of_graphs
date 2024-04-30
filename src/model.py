@@ -53,7 +53,6 @@ class Model:
         pass
 
     def create_product_to_demographic(self, pd_data):
-        # needs to be tested! adapted from Extracting_Values.py
         Product_dataset = pd.read_csv(pd_data)
         Product_Demographic = Product_dataset[['Age','ProductCategory']]
         Product_Demographic = Product_Demographic.dropna()
@@ -70,9 +69,6 @@ class Model:
                                         weight=Node_Dataframe[(Node_Dataframe['Age'] >= low) & (Node_Dataframe['Age'] <= high)].shape[0]/Total)
 
     def create_demographic_to_social(self, ds_data):
-        # needs to be tested!!!
-
-        # ds_data = id: (age, sm)
         self.D_to_S.add_nodes_from(self.D)
         self.D_to_S.add_nodes_from(self.S)
 
