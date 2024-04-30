@@ -1,6 +1,7 @@
 import json
 import numpy as np
 import csv
+import pandas as pd
 
 MIN_AGE = 18
 MAX_AGE = 70
@@ -14,6 +15,10 @@ def parse_csv(filename, columns = None):
         for line, row in enumerate(reader):
             data[line] = [row[i] for i in columns] if columns else row
     return data
+
+def age_to_range(age):
+        index = (int(age) - MIN_AGE) // AGE_STEP
+        return f"{MIN_AGE + index * AGE_STEP}-{MIN_AGE + (index + 1) * AGE_STEP - 1}"
 
 def synth_age_demographics(low, high, step, n_samples, outfile):
     n_ranges = (high-low)//step
@@ -30,6 +35,28 @@ def synth_age_demographics(low, high, step, n_samples, outfile):
         age_data[sample] = (ranges[range_idx], friends)
     with open(outfile, 'w') as json_file:
         json.dump(age_data, json_file)
+
+def synth_age_to_socials(n_samples, infile, outfile):
+    df = pd.read_csv(infile)
+    data = {}
+    age_to_sm_probs = {}
+    for _, row in df.iterrows():
+        age_range = row['age']
+        age_to_sm_probs[age_range] = list(map(float, row.values[1:]))
+    print(age_to_sm_probs)
+    for sample in range(n_samples):
+        age_range = np.random.choice(list(age_to_sm_probs.keys()))
+        age_min, age_max = map(int, age_range.split('-'))
+        age = np.random.randint(age_min, age_max + 1)
+        social_medias = list(df.columns[1:])
+        probabilities = age_to_sm_probs[age_range]
+        chosen_medias = []
+        for i in range(len(social_medias)):
+            if np.random.random() < probabilities[i]:
+                chosen_medias.append(social_medias[i])
+        data[sample] = (age, chosen_medias)
+    with open(outfile, 'w') as json_file:
+        json.dump(data, json_file)
 
 def parse_json(filename):
     with open(filename, 'r') as file:

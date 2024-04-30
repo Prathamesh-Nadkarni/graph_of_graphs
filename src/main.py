@@ -9,7 +9,7 @@ def main():
     social_data = None
 
     p_to_d_data = r'src\ConnectionProductDemoGraphic\data\retail_data.csv'
-    d_to_s_data = utils.parse_csv(r'data\age_gender_sm.csv', columns=[0, 2])
+    d_to_s_data = utils.parse_json(r'data\age_to_sm.json')
 
     m = model.Model(product_data, demographic_data, None, p_to_d_data, d_to_s_data)
     m.visualize_cytoscape(m.P)

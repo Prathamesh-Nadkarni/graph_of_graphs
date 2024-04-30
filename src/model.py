@@ -79,17 +79,17 @@ class Model:
         self.D_to_S.add_nodes_from(self.S)
 
         age_ranges = self.D.nodes()
-        def age_to_range(age):
-            index = (int(age) - utils.MIN_AGE) // utils.AGE_STEP
-            return f"{utils.MIN_AGE + index * utils.AGE_STEP}-{utils.MIN_AGE + (index + 1) * utils.AGE_STEP - 1}"
 
-        for _, (age, social) in ds_data.items():
-            age_range = age_to_range(age)
+        for _, (age, socials) in ds_data.items():
+            age_range = utils.age_to_range(age)
             if age_range not in age_ranges:
                 continue
-            if not self.D_to_S.has_edge(age_range, social):
-                self.D_to_S.add_edge(age_range, social, weight=0)
-            self.D_to_S[age_range][social]['weight'] += 1
+            for social in socials:
+                if social not in self.S.nodes():
+                    continue
+                if not self.D_to_S.has_edge(age_range, social):
+                    self.D_to_S.add_edge(age_range, social, weight=0)
+                self.D_to_S[age_range][social]['weight'] += 1
         for age_range in age_ranges:
             total_weight = sum(self.D_to_S[age_range][social]['weight'] for social in self.D_to_S.neighbors(age_range))
             for social in self.D_to_S.neighbors(age_range):
