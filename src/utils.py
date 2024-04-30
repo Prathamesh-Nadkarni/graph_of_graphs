@@ -1,18 +1,24 @@
 import json
 import numpy as np
+import csv
 
 MIN_AGE = 18
 MAX_AGE = 70
 AGE_STEP = 4
 
 
-def parse(filename):
-    return {}
+def parse_csv(filename, columns = None):
+    data = {}
+    with open(filename, 'r', newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        for line, row in enumerate(reader):
+            data[line] = [row[i] for i in columns] if columns else row
+    return data
 
-def synth_age_demographics(low, high, step, n_samples):
+def synth_age_demographics(low, high, step, n_samples, outfile):
     n_ranges = (high-low)//step
-    ranges = list(f'{low + i*step}-{low + (i+1)*step}' for i in range(n_ranges))
-
+    ranges = list(f'{low + i*step}-{low + (i+1)*step - 1}' for i in range(n_ranges))
+    print(ranges)
     NUM_FRIENDS = 30
     VARIANCE = 1
     age_data = {}
@@ -22,7 +28,8 @@ def synth_age_demographics(low, high, step, n_samples):
         friends_idx = np.round(np.random.normal(loc=range_idx, scale=VARIANCE, size=noisy_num_friends)).astype(int)
         friends = list(ranges[f_idx] for f_idx in friends_idx if 0 <= f_idx and f_idx <= n_ranges-1)
         age_data[sample] = (ranges[range_idx], friends)
-    return age_data
+    with open(outfile, 'w') as json_file:
+        json.dump(age_data, json_file)
 
 def parse_json(filename):
     with open(filename, 'r') as file:

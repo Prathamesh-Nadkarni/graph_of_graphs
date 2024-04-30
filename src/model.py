@@ -3,6 +3,7 @@ import networkx as nx
 import py4cytoscape as p4c
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import utils
 
 class Model:
@@ -18,7 +19,7 @@ class Model:
         self.create_social(social_data)
         
         #self.create_product_to_demographic(p_to_d_data)
-        #self.create_demographic_to_social(d_to_s_data)
+        self.create_demographic_to_social(d_to_s_data)
 
     def query(self, product):
         return []
@@ -47,34 +48,52 @@ class Model:
 
 
     def create_social(self, social_data):
+        self.S.add_nodes_from(['TikTok', 'Twitter', 'Instagram', 'Facebook', 'YouTube'])
         pass
 
     def create_product_to_demographic(self, pd_data):
-        pass
+        # needs to be tested! adapted from Extracting_Values.py
+        Product_dataset = pd.read_csv(pd_data)
+        Product_Demographic = Product_dataset[['Age','ProductCategory']]
+        Product_Demographic = Product_Demographic.dropna()
+        self.P_to_D.add_nodes_from(self.P)
+        self.P_to_D.add_nodes_from(self.D)
+        Ages = [age for age in range(utils.MIN_AGE+utils.age_interval, utils.MAX_AGE+1, utils.AGE_STEP)]
+        Product_Nodes = self.P.nodes
+        for x in Product_Nodes:
+            Node_Dataframe = Product_Demographic[Product_Demographic['ProductCategory'] == x]
+            Total = Node_Dataframe.shape[0]
+            for y in range(0, len(Ages)):
+                if y == 0:
+                    self.P_to_D.add_edge(x, str(utils.MIN_AGE) + "-" + str(Ages[y]),
+                                         weight=Node_Dataframe[(Node_Dataframe['Age'] >= utils.MIN_AGE) & (Node_Dataframe['Age'] <= Ages[y])].shape[0]/Total)
+                else:
+                    self.P_to_D.add_edge(x, str(Ages[y-1] + 1) + "-" + str(Ages[y]),
+                                         weight=Node_Dataframe[(Node_Dataframe['Age'] > Ages[y-1]) & (Node_Dataframe['Age'] <= Ages[y])].shape[0]/Total)
 
     def create_demographic_to_social(self, ds_data):
-        # this isn't tested at all!!! remove comment once we know it actually runs
+        # needs to be tested!!!
 
-        # ds_data = id: (age, [sm1, sm2, ...])
+        # ds_data = id: (age, sm)
         self.D_to_S.add_nodes_from(self.D)
         self.D_to_S.add_nodes_from(self.S)
 
         age_ranges = self.D.nodes()
-        socials = self.S.nodes()
         def age_to_range(age):
-            index = (age - utils.MIN_AGE) // utils.AGE_STEP
+            index = (int(age) - utils.MIN_AGE) // utils.AGE_STEP
             return f"{utils.MIN_AGE + index * utils.AGE_STEP}-{utils.MIN_AGE + (index + 1) * utils.AGE_STEP - 1}"
 
-        for _, (age, socials) in ds_data.items():
+        for _, (age, social) in ds_data.items():
             age_range = age_to_range(age)
-            for social in socials:
-                if not self.D_to_S.has_edge(age_range, social):
-                    self.D.add_edge(age_range, social, weight=0)
-                self.D[age_range][social]['weight'] += 1
+            if age_range not in age_ranges:
+                continue
+            if not self.D_to_S.has_edge(age_range, social):
+                self.D_to_S.add_edge(age_range, social, weight=0)
+            self.D_to_S[age_range][social]['weight'] += 1
         for age_range in age_ranges:
-            total_weight = sum(self.D[age_range][social]['weight'] for social in self.D.neighbors(age))
-            for social in self.D.neighbors(age_range):
-                self.D[age_range][social]['weight'] /= total_weight
+            total_weight = sum(self.D_to_S[age_range][social]['weight'] for social in self.D_to_S.neighbors(age_range))
+            for social in self.D_to_S.neighbors(age_range):
+                self.D_to_S[age_range][social]['weight'] /= total_weight
 
     def visualize_cytoscape(self, network, add_weights=True):
         try:
@@ -96,58 +115,3 @@ class Model:
         
         p4c.styles.create_visual_style(style_name, defaults=defaults, mappings=mappings)
         p4c.styles.set_visual_style(style_name, suid)
-
-    '''
-    def adjust_label_pos(self, pos, edge, rad):
-        """ Adjust the position of edge labels for curved edges. """
-        src, tgt = edge
-        src_pos, tgt_pos = np.array(pos[src]), np.array(pos[tgt])
-        midpoint = (src_pos + tgt_pos) / 2
-        
-        vector = tgt_pos - src_pos
-        
-        perpendicular = np.array([-vector[1], vector[0]])
-        normalized_perpendicular = perpendicular / np.linalg.norm(perpendicular)
-        
-        label_pos = midpoint + normalized_perpendicular * rad
-        return label_pos
-
-    def visualize(self, network):
-        left_curved_edges = [('Health & Beauty', 'Electronics'),('Electronics', 'Books'),('Books', 'Groceries'),('Groceries', 'Home & Kitchen'),('Home & Kitchen', 'Health & Beauty'), ('Electronics', 'Groceries'), ('Electronics', 'Home & Kitchen'),('Books', 'Health & Beauty'),('Books', 'Home & Kitchen'),('Health & Beauty', 'Groceries')]
-        right_curved_edges = [('Electronics', 'Health & Beauty'),('Health & Beauty', 'Home & Kitchen'),('Home & Kitchen', 'Groceries'), ('Groceries', 'Books'),('Books', 'Electronics'),('Groceries', 'Electronics'), ('Home & Kitchen', 'Electronics'),('Health & Beauty', 'Books'),('Home & Kitchen', 'Books'),('Groceries', 'Health & Beauty')]
-        
-        pos = nx.circular_layout(network)
-
-        nx.draw_networkx_nodes(network, pos, node_color='skyblue', node_size=3000)
-
-        for edge in network.edges(data=True):
-            if (edge[0],edge[1]) in left_curved_edges:
-                style = 'arc3,rad=0.1'
-            elif (edge[0],edge[1]) in right_curved_edges:
-                style = 'arc3,rad=0.1'
-            else:
-                style = 'arc3,rad=0'
-            nx.draw_networkx_edges(network, pos, edgelist=[(edge[0],edge[1])], connectionstyle=style,
-                                arrowstyle='-|>', arrowsize=10, edge_color='gray')
-
-        
-        edge_labels = nx.get_edge_attributes(network, 'weight')
-        
-        formatted_edge_labels = {k: f"{v:.4f}" for k, v in edge_labels.items()}
-
-        label_positions = {}
-        for edge in formatted_edge_labels:
-            rad = 0.1 if edge in left_curved_edges else 0.1 if edge in right_curved_edges else 0
-            label_positions[edge] = self.adjust_label_pos(pos, edge, rad)
-        
-        for edge, label in formatted_edge_labels.items():
-            label_pos = label_positions[edge]
-            plt.text(label_pos[0], label_pos[1], s=label, bbox=dict(facecolor='white', alpha=0.5),
-                    horizontalalignment='center', verticalalignment='center')
-
-        nx.draw_networkx_labels(network, pos, font_size=12)
-
-        plt.title("Network Visualization with Curved Edges and Weights")
-        plt.axis('off')
-        plt.show()
-    '''
