@@ -26,7 +26,46 @@ class Model:
         
 
     def query(self, product):
-        return []
+        '''
+        this makes Electronics like tiktok and twitter and insta!
+        we need to differentiate the product_to_demographic edges more...
+        self.N['Electronics']['18-21']['weight'] = 0.5
+        self.N['Electronics']['22-25']['weight'] = 0.5
+        '''
+        weights = {}
+
+        visited_per_parent = {}
+
+        queue = [(product, 0)]
+
+        def node_subgraph(node):
+                if node in self.P.nodes():
+                    return 'P'
+                if node in self.D.nodes():
+                    return 'D'
+                if node in self.S.nodes():
+                    return 'S'
+        while queue:
+            current_node, current_log_weight = queue.pop(0)
+            if current_node in self.S.nodes():
+                if current_node not in weights:
+                    weights[current_node] = 0
+                weights[current_node] += np.exp(current_log_weight)
+            
+            if current_node not in visited_per_parent:
+                visited_per_parent[current_node] = set()
+            parent_visited = visited_per_parent[current_node]
+            for neighbor in self.N.neighbors(current_node):
+                if neighbor not in parent_visited:
+                    edge_weight = self.N[current_node][neighbor]['weight']
+                    # discount same-network paths, not when moving to next network
+                    discount = 0.1 if node_subgraph(current_node) == node_subgraph(neighbor) else 1
+                    next_log_weight = current_log_weight + np.log(discount) + np.log(edge_weight)
+                    visited_per_parent[current_node].add(neighbor)
+                    queue.append((neighbor, next_log_weight))
+        total_weight = sum(weights.values())
+        normalized_weights = {node: weight / total_weight for node, weight in weights.items()}
+        return normalized_weights
 
     def create_product(self, product_data):
         self.P.add_nodes_from(product_data.keys())
@@ -42,6 +81,8 @@ class Model:
         self.D.add_nodes_from(ages)
         for _, (age, friends) in demographic_data.items():
             for friend in friends:
+                if age == friend:
+                    continue
                 if not self.D.has_edge(age, friend):
                     self.D.add_edge(age, friend, weight=0)
                 self.D[age][friend]['weight'] += 1
