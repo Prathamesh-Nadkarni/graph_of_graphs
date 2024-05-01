@@ -1,0 +1,32 @@
+{
+    "TikTok": {
+        "Twitter": 0.929,
+        "Instagram": 0.626,
+        "Facebook": 0.69,
+        "YouTube": 0.832
+    },
+    "Twitter": {
+        "TikTok": 1.172,
+        "Instagram": 0.708,
+        "Facebook": 0.774,
+        "YouTube": 0.943
+    },
+    "Instagram": {
+        "TikTok": 1.689,
+        "Twitter": 1.521,
+        "Facebook": 1.132,
+        "YouTube": 1.363
+    },
+    "Facebook": {
+        "TikTok": 1.554,
+        "Twitter": 1.38,
+        "Instagram": 0.938,
+        "YouTube": 1.246
+    },
+    "YouTube": {
+        "TikTok": 1.275,
+        "Twitter": 1.141,
+        "Instagram": 0.771,
+        "Facebook": 0.848
+    }
+}
