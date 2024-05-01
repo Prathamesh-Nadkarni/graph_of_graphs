@@ -1,3 +1,4 @@
+from functools import reduce
 from typing import Dict
 import networkx as nx
 import py4cytoscape as p4c
@@ -20,6 +21,8 @@ class Model:
         
         self.create_product_to_demographic(p_to_d_data)
         self.create_demographic_to_social(d_to_s_data)
+
+        self.N = reduce(nx.compose, (self.P, self.D, self.S, self.P_to_D, self.D_to_S))
         
 
     def query(self, product):

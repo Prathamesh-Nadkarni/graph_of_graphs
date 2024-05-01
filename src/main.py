@@ -18,7 +18,7 @@ def main():
     m.visualize_cytoscape(m.D_to_S, add_weights=False)
     m.visualize_cytoscape(m.S, add_weights=True)
 
-    #print(m.query("toothpaste"))
+    m.visualize_cytoscape(m.N, add_weights=False)
 
 
 
