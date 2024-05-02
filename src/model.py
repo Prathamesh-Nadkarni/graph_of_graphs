@@ -135,6 +135,9 @@ class Model:
 
     def visualize_cytoscape(self, network, add_weights=True):
         try:
+            # needed to set node width based on name length
+            for node in self.N.nodes():
+                self.N.nodes[node]['len'] = 8*len(node)
             suid = p4c.networks.create_network_from_networkx(network)
         except:
             print('Visualization requires Cytoscape to be running https://cytoscape.org/')
@@ -145,12 +148,16 @@ class Model:
 
         # create mappings
         mappings = []
+        
         mappings.append(p4c.map_visual_property('NODE_LABEL', 'name', 'p'))
         mappings.append(p4c.map_visual_property('NODE_FILL_COLOR', 'subnetwork', 'd', ['P', 'D', 'S'], ['#aec9f5', '#abf79c', '#ed943b']))
+        mappings.append(p4c.map_visual_property('NODE_WIDTH', 'len', 'p'))
         if add_weights:
             mappings.append(p4c.map_visual_property('EDGE_LABEL', 'weight', 'p'))
         mappings.append(p4c.map_visual_property('EDGE_STROKE_UNSELECTED_PAINT', 'weight', 'c', [0.0, 1.0], ['blue','red']))
         mappings.append(p4c.map_visual_property('EDGE_TRANSPARENCY', 'weight', 'c', [0.0, 0.5, 1.0], [0, 200, 255]))
         
         p4c.styles.create_visual_style(style_name, defaults=defaults, mappings=mappings)
+        p4c.lock_node_dimensions(False, style_name)
         p4c.styles.set_visual_style(style_name, suid)
+        

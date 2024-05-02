@@ -19,7 +19,7 @@ def main():
     m.visualize_cytoscape(m.D_to_S, add_weights=True)
     m.visualize_cytoscape(m.S, add_weights=True)
     '''
-    m.visualize_cytoscape(m.N, add_weights=True)
+    m.visualize_cytoscape(m.N, add_weights=False)
     print(m.query('Electronics'))
     print(m.query('Home & Kitchen'))
 
