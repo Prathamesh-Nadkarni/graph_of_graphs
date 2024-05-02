@@ -26,16 +26,14 @@ class Model:
         
 
     def query(self, product):
-        '''
-        this makes Electronics like tiktok and twitter and insta!
-        we need to differentiate the product_to_demographic edges more...
-        self.N['Electronics']['18-21']['weight'] = 0.5
-        self.N['Electronics']['22-25']['weight'] = 0.5
-        '''
+        
+        #this makes Electronics like tiktok and twitter and insta!
+        #we need to differentiate the product_to_demographic edges more...
+        #self.N['Electronics']['18-21']['weight'] = 0.5
+        #self.N['Electronics']['22-25']['weight'] = 0.5
+        
         weights = {}
-
         visited_per_parent = {}
-
         queue = [(product, 0)]
 
         def node_subgraph(node):
@@ -81,8 +79,6 @@ class Model:
         self.D.add_nodes_from(ages)
         for _, (age, friends) in demographic_data.items():
             for friend in friends:
-                if age == friend:
-                    continue
                 if not self.D.has_edge(age, friend):
                     self.D.add_edge(age, friend, weight=0)
                 self.D[age][friend]['weight'] += 1

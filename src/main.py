@@ -21,7 +21,7 @@ def main():
     '''
     m.visualize_cytoscape(m.N, add_weights=True)
     print(m.query('Electronics'))
-    print(m.query('Health & Beauty'))
+    print(m.query('Home & Kitchen'))
 
 
 
