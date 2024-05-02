@@ -66,7 +66,7 @@ class Model:
         return normalized_weights
 
     def create_product(self, product_data):
-        self.P.add_nodes_from(product_data.keys())
+        self.P.add_nodes_from(product_data.keys(), subnetwork='P')
         for x in product_data.keys():
             EdgeDict = product_data[x]
             edge_names = EdgeDict.keys()
@@ -76,7 +76,7 @@ class Model:
     def create_demographic(self, demographic_data):
         # id:(age_range, [friend_1_range, ...])
         ages = set(value[0] for value in demographic_data.values())
-        self.D.add_nodes_from(ages)
+        self.D.add_nodes_from(ages, subnetwork='D')
         for _, (age, friends) in demographic_data.items():
             for friend in friends:
                 if not self.D.has_edge(age, friend):
@@ -89,7 +89,7 @@ class Model:
 
 
     def create_social(self, social_data):
-        self.S.add_nodes_from(['TikTok', 'Twitter', 'Instagram', 'Facebook', 'YouTube'])
+        self.S.add_nodes_from(['TikTok', 'Twitter', 'Instagram', 'Facebook', 'YouTube'], subnetwork='S')
         for x in social_data.keys():
             EdgeDict = social_data[x]
             edge_names = EdgeDict.keys()
@@ -141,11 +141,12 @@ class Model:
             return
         style_name = f'{suid} style'
         # default style mapping
-        defaults = {'NODE_SHAPE': 'rectangle', 'NODE_FILL_COLOR': 'orange', 'EDGE_TARGET_ARROW_SHAPE': 'arrow'}
+        defaults = {'NODE_SHAPE': 'rectangle', 'EDGE_TARGET_ARROW_SHAPE': 'arrow'}
 
         # create mappings
         mappings = []
         mappings.append(p4c.map_visual_property('NODE_LABEL', 'name', 'p'))
+        mappings.append(p4c.map_visual_property('NODE_FILL_COLOR', 'subnetwork', 'd', ['P', 'D', 'S'], ['#aec9f5', '#abf79c', '#ed943b']))
         if add_weights:
             mappings.append(p4c.map_visual_property('EDGE_LABEL', 'weight', 'p'))
         mappings.append(p4c.map_visual_property('EDGE_STROKE_UNSELECTED_PAINT', 'weight', 'c', [0.0, 1.0], ['blue','red']))
