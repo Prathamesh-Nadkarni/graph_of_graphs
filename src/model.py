@@ -107,10 +107,23 @@ class Model:
         for x in Product_Nodes:
             Node_Dataframe = Product_Demographic[Product_Demographic['ProductCategory'] == x]
             Total = Node_Dataframe.shape[0]
+            weights = {}
             for y in range(len(Ages)):
                 low, high = utils.MIN_AGE if y == 0 else Ages[y-1], Ages[y]-1
-                self.P_to_D.add_edge(x, str(low) + "-" + str(high),
-                                        weight=Node_Dataframe[(Node_Dataframe['Age'] >= low) & (Node_Dataframe['Age'] <= high)].shape[0]/Total)
+                age_range = str(low) + "-" + str(high)
+                w = Node_Dataframe[(Node_Dataframe['Age'] >= low) & (Node_Dataframe['Age'] <= high)].shape[0]/Total
+                weights[age_range] = w
+            max_w, min_w = max(weights.values()), min(weights.values())
+            normalized_w = {}
+            for a, w in weights.items():
+                # need nonzero, since we do our query in the log
+                epsilon = 0.00001
+                normalized_w[a] = (w - min_w) / (max_w - min_w) + epsilon
+            sum_w = sum(normalized_w.values())
+            scaled_w = {a: w / sum_w for a, w in normalized_w.items()}
+            for age_range, w in scaled_w.items():
+                self.P_to_D.add_edge(x, age_range, weight=w)
+
 
     def create_demographic_to_social(self, ds_data):
         self.D_to_S.add_nodes_from(self.D)

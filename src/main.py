@@ -20,8 +20,10 @@ def main():
     m.visualize_cytoscape(m.S, add_weights=True)
     '''
     m.visualize_cytoscape(m.N, add_weights=False)
-    print(m.query('Electronics'))
-    print(m.query('Home & Kitchen'))
+    p = 'Books'
+    w = m.query(p)
+    print(p, w)
+    utils.visualize_weights(p, w)
 
 
 

@@ -2,6 +2,7 @@ import json
 import numpy as np
 import csv
 import pandas as pd
+import matplotlib.pyplot as plt
 
 MIN_AGE = 18
 MAX_AGE = 70
@@ -62,3 +63,12 @@ def parse_json(filename):
     with open(filename, 'r') as file:
         parsed_dict = json.load(file)
     return parsed_dict
+
+def visualize_weights(p, w):
+    labels = list(w.keys())
+    values = list(w.values())
+    plt.bar(labels, values)
+    plt.title(p)
+    plt.xlabel('Socials')
+    plt.ylabel('Weights')
+    plt.show()
